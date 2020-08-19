@@ -99,15 +99,13 @@ typedef struct	s_raycasting
 	t_sprite	*sprite;
 	t_player	player; // Variable player type = structure
 	t_rendering	render; // Variable render type = rendering
-	int			mapX; // Map width
-	int			mapY; // Map height
+	int			map_x; // Position_x in the map to calculate distances
+	int			map_y; // Position_y ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' '
 	double		planX; // Player plan in x
 	double		planY; // PLayer plan in y
 	double		camera_in_x;
 	double		ray_x;
 	double		ray_y;
-	int			current_position_x;
-	int			current_position_y;
 	double		delta_x;
 	double		delta_y;
 	double		side_dist_x;

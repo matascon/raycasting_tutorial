@@ -242,16 +242,16 @@ void	dda_algorithm(t_env *env)
 		if (env->rc.side_dist_x < env->rc.side_dist_y)
 		{
 			env->rc.side_dist_x += env->rc.delta_x;
-			env->rc.current_position_x += env->rc.step_x;
+			env->rc.map_x += env->rc.step_x;
 			env->rc.side = 0;
 		}
 		else
 		{
 			env->rc.side_dist_y += env->rc.delta_y;
-			env->rc.current_position_y += env->rc.step_y;
+			env->rc.map_y += env->rc.step_y;
 			env->rc.side = 1;
 		}
-		if (env->map.map[env->rc.current_position_y][env->rc.current_position_x] == '1')
+		if (env->map.map[env->rc.map_y][env->rc.map_x] == '1')
 			hit = 1;
 	}
 }
@@ -261,22 +261,22 @@ void	step_raycasting(t_env *env)
 	if (env->rc.ray_x < 0)
 	{
 		env->rc.step_x = -1;
-		env->rc.side_dist_x = (env->rc.player.position_x - env->rc.current_position_x) * env->rc.delta_x;
+		env->rc.side_dist_x = (env->rc.player.position_x - env->rc.map_x) * env->rc.delta_x;
 	}
 	else
 	{
 		env->rc.step_x = 1;
-		env->rc.side_dist_x = (env->rc.current_position_x + 1 - env->rc.player.position_x) * env->rc.delta_x;
+		env->rc.side_dist_x = (env->rc.map_x + 1 - env->rc.player.position_x) * env->rc.delta_x;
 	}
 	if (env->rc.ray_y < 0)
 	{
 		env->rc.step_y = -1;
-		env->rc.side_dist_y = (env->rc.player.position_y - env->rc.current_position_y) * env->rc.delta_y;
+		env->rc.side_dist_y = (env->rc.player.position_y - env->rc.map_y) * env->rc.delta_y;
 	}
 	else
 	{
 		env->rc.step_y = 1;
-		env->rc.side_dist_y = (env->rc.current_position_y + 1 - env->rc.player.position_y) * env->rc.delta_y;
+		env->rc.side_dist_y = (env->rc.map_y + 1 - env->rc.player.position_y) * env->rc.delta_y;
 	}
 }
 
@@ -287,8 +287,8 @@ void	init_raycasting(t_env *env, int x)
 	env->rc.ray_y = env->rc.player.dir_y + env->rc.planY * env->rc.camera_in_x;
 	env->rc.delta_x = fabs(1 / env->rc.ray_x);
 	env->rc.delta_y = fabs(1 / env->rc.ray_y);
-	env->rc.current_position_x = (int)env->rc.player.position_x;
-	env->rc.current_position_y = (int)env->rc.player.position_y;
+	env->rc.map_x = (int)env->rc.player.position_x;
+	env->rc.map_y = (int)env->rc.player.position_y;
 }
 
 void	raycasting(t_env *env)
@@ -304,9 +304,9 @@ void	raycasting(t_env *env)
 		step_raycasting(env);
 		dda_algorithm(env);
 		if (env->rc.side == 0)
-			env->rc.perp_wall_dist = (env->rc.current_position_x - env->rc.player.position_x + (1 - env->rc.step_x) / 2) / env->rc.ray_x;
+			env->rc.perp_wall_dist = (env->rc.map_x - env->rc.player.position_x + (1 - env->rc.step_x) / 2) / env->rc.ray_x;
 		else
-			env->rc.perp_wall_dist = (env->rc.current_position_y - env->rc.player.position_y + (1 - env->rc.step_y) / 2) / env->rc.ray_y;
+			env->rc.perp_wall_dist = (env->rc.map_y - env->rc.player.position_y + (1 - env->rc.step_y) / 2) / env->rc.ray_y;
 		//color_wall(env);
 		raycast_columns(env, x, y);
 		env->rc.render.dist_wall[x] = env->rc.perp_wall_dist;
@@ -641,8 +641,6 @@ t_env	*init_map(t_env *env, char map[11][16])
 		}
 		i++;
 	}
-	env->rc.mapX = 16; // Save the map width
-	env->rc.mapY = 11; // Save the map height
 	return (env);
 }
 
