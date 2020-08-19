@@ -30,8 +30,42 @@ typedef struct	s_movement
 	double	speed_rot;
 }				t_movement;
 
+typedef struct	s_sprite
+{
+	int		order;
+	double	distance;
+	double	coord_x;
+	double	coord_y;
+	void	*img_ptr;
+	void	*new_image;
+	int		*get_data;
+	int		bits_per_pixel;
+	int		size_line;
+	int		endian;
+	int		width;
+	int		height;
+	int		size_x;
+	int		size_y;
+	int		color;
+	//pending size_x/y
+}				t_sprite;
+
 typedef struct	s_rendering
 {
+	double	x;
+	double	y;
+	double	inv_det;
+	double	transform_x;
+	double	transform_y;
+	int		screen_x;
+	int		start_x;
+	int		start_y;
+	int		end_x;
+	int		end_y;
+	int		tex_x;
+	int		tex_y;
+	int		height;
+	int		width;
 	double	*dist_wall; // Distance from the wall to the player plan
 }				t_rendering;
 
@@ -62,6 +96,7 @@ typedef struct	s_raycasting
 	t_texture	east; // East texture
 	t_texture	west; // West texture
 	t_colors	color; // Variable color type = colors
+	t_sprite	*sprite;
 	t_player	player; // Variable player type = structure
 	t_rendering	render; // Variable render type = rendering
 	int			mapX; // Map width
@@ -84,6 +119,7 @@ typedef struct	s_raycasting
 	int 		hauteur_line;
 	int			draw_start;
 	int			draw_end;
+	int			nbr_sprites;
 	// I know, this fuck*** structure is getting complicated
 }				t_raycasting;
 
