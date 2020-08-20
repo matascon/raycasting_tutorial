@@ -93,7 +93,8 @@ int	key_exit(t_env *env)
 	free(env->rc.south.img_ptr);
 	free(env->rc.east.img_ptr);
 	free(env->rc.west.img_ptr);
-	free(env->rc.render.dist_wall);
+	if (env->rc.render.dist_wall)
+		free(env->rc.render.dist_wall);
 	exit(0);
 	return (0);
 }
@@ -152,6 +153,8 @@ int	key_press(int keycode, t_env *env)
 //	   \|/
 //		v
 
+// Return texture that set_texture gotta draw
+
 t_texture	texture_wall(t_env *env)
 {
 	if (env->rc.side == 0 && env->rc.ray_x > 0)
@@ -164,6 +167,8 @@ t_texture	texture_wall(t_env *env)
 		return (env->rc.north);
 }
 
+// Choose texture and pixel to draw on column and calculate the exactly position where the wall was hit
+
 void	set_texture(t_env *env, int x)
 {
 	double		wall_x;
@@ -173,6 +178,8 @@ void	set_texture(t_env *env, int x)
 	t_texture	tex_wall;
 
 	tex_wall = texture_wall(env);
+	// calculate value of wall_x
+	// where exactly the wall was hit
 	if (env->rc.side == 0)
 		wall_x = env->rc.player.position_y + env->rc.perp_wall_dist * env->rc.ray_y;
 	else
@@ -189,11 +196,13 @@ void	set_texture(t_env *env, int x)
 	}
 }
 
+// Draw the pixels of the column as a vertical line
+
 void	raycast_columns(t_env *env, int x, int y)
 {
-	env->rc.hauteur_line = (env->height_screen / env->rc.perp_wall_dist);
-	env->rc.draw_start = -env->rc.hauteur_line / 2 + env->height_screen / 2;
-	env->rc.draw_end = env->rc.hauteur_line / 2 + env->height_screen / 2;
+	env->rc.hauteur_line = (env->height_screen / env->rc.perp_wall_dist); // Calculate height of line to draw on screen
+	env->rc.draw_start = -env->rc.hauteur_line / 2 + env->height_screen / 2; // Caculate lowest and highest pixel to draw in current column
+	env->rc.draw_end = env->rc.hauteur_line / 2 + env->height_screen / 2; // '' '' '' '' '' '' '' '' '' '' ''
 	if (env->rc.draw_start < 0)
 			env->rc.draw_start = 0;
 	if (env->rc.draw_end >= env->height_screen)
@@ -210,6 +219,8 @@ void	raycast_columns(t_env *env, int x, int y)
 		y++;
 	}
 }
+
+//Choose wall-color
 
 void	init_color_wall(t_env *env)
 {
@@ -232,6 +243,8 @@ void	color_wall(t_env *env)
 		env->rc.color.wall = env->rc.color.west;
 }
 
+// PERFORM DDA ALGORITHM
+
 void	dda_algorithm(t_env *env)
 {
 	int	hit;
@@ -239,6 +252,7 @@ void	dda_algorithm(t_env *env)
 	hit = 0;
 	while (hit == 0)
 	{
+		// Jump to next map square, OR in x-direction, OR in y-direction
 		if (env->rc.side_dist_x < env->rc.side_dist_y)
 		{
 			env->rc.side_dist_x += env->rc.delta_x;
@@ -251,10 +265,13 @@ void	dda_algorithm(t_env *env)
 			env->rc.map_y += env->rc.step_y;
 			env->rc.side = 1;
 		}
+		// Check if ray has hit a wall
 		if (env->map.map[env->rc.map_y][env->rc.map_x] == '1')
 			hit = 1;
 	}
 }
+
+// Calculate step_x/y and initial side_dist_x/y.
 
 void	step_raycasting(t_env *env)
 {
@@ -280,6 +297,9 @@ void	step_raycasting(t_env *env)
 	}
 }
 
+//To begin the raycasting loop, some variables are delcared and calculated
+// More variables are declared and calculated, these have relevance to the DDA algorithm
+
 void	init_raycasting(t_env *env, int x)
 {
 	env->rc.camera_in_x = 2 * x / (double)(env->width_screen) - 1;
@@ -290,6 +310,12 @@ void	init_raycasting(t_env *env, int x)
 	env->rc.map_x = (int)env->rc.player.position_x;
 	env->rc.map_y = (int)env->rc.player.position_y;
 }
+
+// WTF!, LODEV (lODEV tutorial) ---> Raycasting is a rendering technique to create a 3D perspective in a 2D map.
+//			|
+//			|
+//			|
+//			v
 
 void	raycasting(t_env *env)
 {
@@ -303,6 +329,7 @@ void	raycasting(t_env *env)
 		init_raycasting(env, x);
 		step_raycasting(env);
 		dda_algorithm(env);
+		// Calculate distance projected on camera direction (Euclidean distance will give fisheye effect!)
 		if (env->rc.side == 0)
 			env->rc.perp_wall_dist = (env->rc.map_x - env->rc.player.position_x + (1 - env->rc.step_x) / 2) / env->rc.ray_x;
 		else
@@ -314,6 +341,8 @@ void	raycasting(t_env *env)
 	}
 }
 
+// Free memory of dist_wall variable
+
 void	free_sprite(t_env *env)
 {
 	if (env->rc.render.dist_wall)
@@ -323,6 +352,7 @@ void	free_sprite(t_env *env)
 	}
 }
 
+// Choose color-pixel for sprites
 
 void	get_color(t_env *env, int i)
 {
@@ -334,6 +364,8 @@ void	get_color(t_env *env, int i)
 			env->rc.sprite[i].color = 0xBFD195;
 	}
 }
+
+// Draw/put sprites on screen
 
 void	last_render_sprite(t_env *env, int x, int i)
 {
@@ -356,6 +388,8 @@ void	last_render_sprite(t_env *env, int x, int i)
 		y++;
 	}
 }
+
+// Calculations to make the render on sprites
 
 void	aux_render_sprite(t_env *env, int i)
 {
@@ -381,6 +415,8 @@ void	aux_render_sprite(t_env *env, int i)
 		env->rc.render.end_x = env->width_screen - 1;
 }
 
+// Render sprite
+
 void	render_sprite(t_env *env)
 {
 	int	i;
@@ -402,6 +438,8 @@ void	render_sprite(t_env *env)
 	}
 }
 
+// Sort sprites from further to closer
+
 void	sort_sprite(t_env *env)
 {
 	int	i;
@@ -421,6 +459,8 @@ void	sort_sprite(t_env *env)
 	}
 }
 
+// Calculate distance of the sprites to player position
+
 void	sprite_distance(t_env *env)
 {
 	int	i;
@@ -434,6 +474,8 @@ void	sprite_distance(t_env *env)
 	}
 }
 
+// Raycasting to sprites
+
 void	ray_sprite(t_env *env)
 {
 	sprite_distance(env);
@@ -441,6 +483,8 @@ void	ray_sprite(t_env *env)
 	render_sprite(env);
 	free_sprite(env);
 }
+
+// This puts image/frame to window
 
 t_env	*init_frame(t_env *env)
 {
@@ -458,6 +502,8 @@ t_env	*init_frame(t_env *env)
 	mlx_destroy_image(env->mlx_ptr, env->new_image);
 	return (env);
 }
+
+// This function saves the coordinates of the sprites
 
 t_env	*set_sprite(t_env *env)
 {
@@ -484,6 +530,8 @@ t_env	*set_sprite(t_env *env)
 	}
 	return (env);
 }
+
+// The next 3 functions load textures
 
 t_env	*pop_sprite(char *root_sprite, t_env *env, int i)
 {
@@ -535,12 +583,12 @@ int		open_app(t_env *env)
 		return (0);
 	}
 	env = init_textures(env); // Preparing textures
-	env = set_sprite(env);
-	env = init_frame(env);
-	mlx_hook(env->win_ptr, 2, 1, &key_press, env);
-	mlx_hook(env->win_ptr, 3, 2, &key_release, env);
-	mlx_hook(env->win_ptr, 33, 0, &key_exit, env);
-	mlx_loop_hook(env->mlx_ptr, &movement, env);
+	env = set_sprite(env); // Initialize x-coordinate and y-coordinate of the sprite
+	env = init_frame(env); // ¡RAYCASTING!
+	mlx_hook(env->win_ptr, 2, 1, &key_press, env); // Hook into key events. This will trigger every time a key is pressed in a focused window. Unfocused windows will not register any key events.
+	mlx_hook(env->win_ptr, 3, 2, &key_release, env); // '' '' '' '' -------> '' ''...
+	mlx_hook(env->win_ptr, 33, 0, &key_exit, env); // '' '' '' '' --------> '' ''...
+	mlx_loop_hook(env->mlx_ptr, &movement, env); // Hook into the loop.
 	mlx_loop(env->mlx_ptr); // Keep the window open
 	return (0);
 }
