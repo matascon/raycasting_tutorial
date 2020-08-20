@@ -189,7 +189,7 @@ void	set_texture(t_env *env, int x)
 	y = env->rc.draw_start;
 	while (y++ < env->rc.draw_end)
 	{
-		tex_y = (y - env->height_screen / 2 + env->rc.hauteur_line / 2) * tex_wall.height / env->rc.hauteur_line;
+		tex_y = (y - env->height_screen / 2 + env->rc.line_height / 2) * tex_wall.height / env->rc.line_height;
 		if (tex_y < 0)
 			return ;
 		env->get_data[x + y * (env->size_line / 4)] = tex_wall.get_data[tex_x + tex_y * tex_wall.width];
@@ -200,9 +200,9 @@ void	set_texture(t_env *env, int x)
 
 void	raycast_columns(t_env *env, int x, int y)
 {
-	env->rc.hauteur_line = (env->height_screen / env->rc.perp_wall_dist); // Calculate height of line to draw on screen
-	env->rc.draw_start = -env->rc.hauteur_line / 2 + env->height_screen / 2; // Caculate lowest and highest pixel to draw in current column
-	env->rc.draw_end = env->rc.hauteur_line / 2 + env->height_screen / 2; // '' '' '' '' '' '' '' '' '' '' ''
+	env->rc.line_height = (env->height_screen / env->rc.perp_wall_dist); // Calculate height of line to draw on screen
+	env->rc.draw_start = -env->rc.line_height / 2 + env->height_screen / 2; // Caculate lowest and highest pixel to draw in current column
+	env->rc.draw_end = env->rc.line_height / 2 + env->height_screen / 2; // '' '' '' '' '' '' '' '' '' '' ''
 	if (env->rc.draw_start < 0)
 			env->rc.draw_start = 0;
 	if (env->rc.draw_end >= env->height_screen)

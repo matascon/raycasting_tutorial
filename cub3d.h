@@ -112,7 +112,7 @@ typedef struct	s_raycasting
 	int			step_x; // x-step in the map
 	int			step_y; // y-step in the map
 	int			side; // Whether an x-side or y-side of a wall was hit in the variable "side"
-	int 		hauteur_line; // Calculate height of line to draw on screen
+	int 		line_height; // Calculate height of line to draw on screen
 	int			draw_start; // Calculate the lowest pixel to draw the current column/stripe
 	int			draw_end; // Calculate the highest pixel to draw the current column/stripe
 	int			nbr_sprites; // Sprites number xd lmao
