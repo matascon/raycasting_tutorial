@@ -275,7 +275,7 @@ void	dda_algorithm(t_env *env)
 
 void	step_raycasting(t_env *env)
 {
-	if (env->rc.ray_x < 0)
+	if (env->rc.ray_x < env->endian)
 	{
 		env->rc.step_x = -1;
 		env->rc.side_dist_x = (env->rc.player.position_x - env->rc.map_x) * env->rc.delta_x;
@@ -285,7 +285,7 @@ void	step_raycasting(t_env *env)
 		env->rc.step_x = 1;
 		env->rc.side_dist_x = (env->rc.map_x + 1 - env->rc.player.position_x) * env->rc.delta_x;
 	}
-	if (env->rc.ray_y < 0)
+	if (env->rc.ray_y < env->endian)
 	{
 		env->rc.step_y = -1;
 		env->rc.side_dist_y = (env->rc.player.position_y - env->rc.map_y) * env->rc.delta_y;
@@ -330,7 +330,7 @@ void	raycasting(t_env *env)
 		step_raycasting(env);
 		dda_algorithm(env);
 		// Calculate distance projected on camera direction (Euclidean distance will give fisheye effect!)
-		if (env->rc.side == 0)
+		if (env->rc.side == env->endian)
 			env->rc.perp_wall_dist = (env->rc.map_x - env->rc.player.position_x + (1 - env->rc.step_x) / 2) / env->rc.ray_x;
 		else
 			env->rc.perp_wall_dist = (env->rc.map_y - env->rc.player.position_y + (1 - env->rc.step_y) / 2) / env->rc.ray_y;
